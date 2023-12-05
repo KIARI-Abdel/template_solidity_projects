@@ -5,13 +5,18 @@ require("hardhat-watcher");
 require("hardhat-contract-sizer");
 require("hardhat-docgen");
 require("hardhat-gas-reporter");
-require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-solhint");
-require("@nomiclabs/hardhat-ethers");
+
 require("@nomiclabs/hardhat-etherscan");
 require("solidity-coverage");
+require('@openzeppelin/hardhat-upgrades');
+
 
 require("./tasks/accounts");
+
+//require("@nomiclabs/hardhat-ethers");
+//require("@nomiclabs/hardhat-waffle");
+
 
 const { removeConsoleLog } = require("hardhat-preprocessor");
 
@@ -19,8 +24,6 @@ const chainIds = {
   ganache: 1337,
   goerli: 5,
   hardhat: 31337,
-  mainnet: 1,
-  bcbc_test:13
 };
 
 
@@ -35,7 +38,28 @@ if (!infuraApiKey) {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.9",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
   paths: {
     sources: "./contracts",
     tests: "./test",
@@ -48,29 +72,15 @@ module.exports = {
       initialDate: "1970-01-01T00:00:00Z",
     },
     localhost: {
-      url: "http://127.0.0.1:8545",
-    },
-    
-    bcbc_test: {
-      url: `https://rpctestnode.blockcerts.io/`,
-      chainId: 13,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 1,
-      gas: 1000000,
-      gasLimit: 1000000,
-    },
-    bcbc_live: {
-      url: `https://rpcnode.blockcerts.io/`,
-      chainId: 13,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 1,
-      gas: 1000000,
-      gasLimit: 1000000,
+      url: "http://127.0.0.1:8545/",
+      gasLimit: 8000000,
     },
     goerli: {
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 5,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      gasLimit: 8000000,
+      gasPrice: 10,
     },
 
     mainnet: {
@@ -80,9 +90,6 @@ module.exports = {
 
     },
 
-  },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   abiExporter: {
     path: "./abi",
